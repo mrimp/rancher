@@ -1,0 +1,71 @@
+apiVersion: v1
+data:
+  values.yaml: "# Additional Trusted CAs.\n# Enable this flag and add your CA certs
+    as a secret named tls-ca-additional in the namespace.\n# See README.md for details.\nadditionalTrustedCAs:
+    false\n\nantiAffinity: preferred\ntopologyKey: kubernetes.io/hostname\n\n# Audit
+    Logs https://rancher.com/docs/rancher/v2.x/en/installation/api-auditing/\n# The
+    audit log is piped to the console of the rancher-audit-log container in the rancher
+    pod.\n# https://rancher.com/docs/rancher/v2.x/en/installation/api-auditing/\n#
+    destination stream to sidecar container console or hostPath volume\n# level: Verbosity
+    of logs, 0 to 3. 0 is off 3 is a lot.\nauditLog:\n  destination: sidecar\n  hostPath:
+    /var/log/rancher/audit/\n  level: 0\n  maxAge: 1\n  maxBackup: 1\n  maxSize: 100\n\n#
+    As of Rancher v2.5.0 this flag is deprecated and must be set to 'true' in order
+    for Rancher to start\naddLocal: \"true\"\n\n# Image for collecting rancher audit
+    logs.\n# Important: update pkg/image/export/main.go when this default image is
+    changed, so that it's reflected accordingly in rancher-images.txt generated for
+    air-gapped setups.\nbusyboxImage: rancher/mirrored-library-busybox\nbusyboxImageTag:
+    1.34.1\n\n# Override imagePullPolicy for busybox images\n# options: Always, Never,
+    IfNotPresent\n# Defaults to IfNotPresent\n# busyboxImagePullPolicy: <pullPolicy>\n\n#
+    Add debug flag to Rancher server\ndebug: false\n\n# When starting Rancher for
+    the first time, bootstrap the admin as restricted-admin\nrestrictedAdmin: false\n\n#
+    Extra environment variables passed to the rancher pods.\n# extraEnv:\n# - name:
+    CATTLE_TLS_MIN_VERSION\n#   value: \"1.0\"\n\n# Fully qualified name to reach
+    your Rancher server\n# hostname: rancher.my.org\n\n## Optional array of imagePullSecrets
+    containing private registry credentials\n## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/\nimagePullSecrets:
+    []\n# - name: secretName\n\n### ingress ###\n# Readme for details and instruction
+    on adding tls secrets.\ningress:\n  # If set to false, ingress will not be created\n
+    \ # Defaults to true\n  # options: true, false\n  enabled: true\n  includeDefaultExtraAnnotations:
+    true\n  extraAnnotations: {}\n  ingressClassName: \"\"\n\n  # configurationSnippet
+    - Add additional Nginx configuration. This example statically sets a header on
+    the ingress.\n  # configurationSnippet: |\n  #   more_set_input_headers \"X-Forwarded-Host:
+    {{ .Values.hostname }}\";\n\n  tls:\n    # options: rancher, letsEncrypt, secret\n
+    \   source: rancher\n    secretName: tls-rancher-ingress\n\n### LetsEncrypt config
+    ###\n# ProTip: The production environment only allows you to register a name 5
+    times a week.\n#         Use staging until you have your config right.\nletsEncrypt:\n
+    \ # email: none@example.com\n  environment: production\n  ingress:\n    # options:
+    traefik, nginx\n    class: \"\"\n# If you are using certs signed by a private
+    CA set to 'true' and set the 'tls-ca'\n# in the 'rancher-system' namespace. See
+    the README.md for details\nprivateCA: false\n\n# http[s] proxy server passed into
+    rancher server.\n# proxy: http://<username>@<password>:<url>:<port>\n\n# comma
+    separated list of domains or ip addresses that will not use the proxy\nnoProxy:
+    127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.svc,.cluster.local\n\n# Override
+    rancher image location for Air Gap installs\nrancherImage: rancher/rancher\n#
+    rancher/rancher image tag. https://hub.docker.com/r/rancher/rancher/tags/\n# Defaults
+    to .Chart.appVersion\n# rancherImageTag: v2.0.7\n\n# Override imagePullPolicy
+    for rancher server images\n# options: Always, Never, IfNotPresent\n# Defaults
+    to IfNotPresent\n# rancherImagePullPolicy: <pullPolicy>\n\n# Number of Rancher
+    server replicas. Setting to negative number will dynamically between 0 and the
+    abs(replicas) based on available nodes.\n# of available nodes in the cluster\nreplicas:
+    3\n\n# Set pod resource requests/limits for Rancher.\nresources: {}\n\n#\n# tls\n#
+    \  Where to offload the TLS/SSL encryption\n# - ingress (default)\n# - external\ntls:
+    ingress\n\nsystemDefaultRegistry: \"\"\n\n# Set to use the packaged system charts\nuseBundledSystemChart:
+    false\n\n# Certmanager version compatibility\ncertmanager: \n  version: \"\"\n\n#
+    Rancher custom logos persistence\ncustomLogos:\n  enabled: false\n  volumeSubpaths:\n
+    \   emberUi: \"ember\"\n    vueUi: \"vue\"\n  ## Volume kind to use for persistence:
+    persistentVolumeClaim, configMap\n  volumeKind: persistentVolumeClaim\n  ## Use
+    an existing volume. Custom logos should be copied to the volume by the user\n
+    \ # volumeName: custom-logos\n  ## Just for volumeKind: persistentVolumeClaim
+    \n  ## To disables dynamic provisioning, set storageClass: \"\" or storageClass:
+    \"-\"\n  # storageClass: \"-\"\n  accessMode: ReadWriteOnce\n  size: 1Gi\n\n#
+    Rancher post-delete hook\npostDelete:\n  enabled: true\n  image:\n    repository:
+    rancher/shell\n    tag: v0.1.18\n  namespaceList:\n    - cattle-fleet-system\n
+    \   - cattle-system\n    - rancher-operator-system\n  # Number of seconds to wait
+    for an app to be uninstalled\n  timeout: 120\n  # by default, the job will fail
+    if it fail to uninstall any of the apps\n  ignoreTimeoutError: false\n\n# Set
+    a bootstrap password. If leave empty, a random password will be generated.\nbootstrapPassword:
+    \"\"\n\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: rancher-helm-chart-value-overrides
+  namespace: rancher
